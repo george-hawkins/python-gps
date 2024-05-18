@@ -181,6 +181,42 @@ with Serial('/dev/tty.usbmodem57350135541', 115200, timeout=3) as stream:
 
 This just prints out all GPS messages received from the module, to get location you just have to filter for the `NAV-PVT`, `NAV-POSLLH` and `NAV-HPPOSLLH` messages as shown [here](https://github.com/semuconsulting/pyubx2/blob/e40457a/examples/gpxtracker.py#L87).
 
+GNTXT
+-----
+
+If you disconnect the GPS module from the UART-to-USB converter, then start `gnssdump` as shown (filtering for `GNTXT` messages) and only then plug the GPS module into the UART-to-USB converter, you'll see the `GNTXT` messages that it outputs at startup.
+
+```
+$ gnssdump --port /dev/tty.usbmodem57350135541 --baudrate 115200 --timeout=3600 --msgfilter GNTXT --format 2
+2024-05-18 23:07:57.909672: Parsing GNSS data stream from: Serial<id=0x75c70938ded0, open=True>(port='/dev/ch343p-usb-serial', baudrate=115200, bytesize=8, parity='N', stopbits=1, timeout=3600, xonxoff=False, rtscts=False, dsrdtr=False)...
+
+b'$GNTXT,01,01,02,u-blox AG - www.u-blox.com*4E\r\n'
+b'$GNTXT,01,01,02,HW UBX 10 000A0000*53\r\n'
+b'$GNTXT,01,01,02,ROM SPG 5.10 (7b202e)*7C\r\n'
+b'$GNTXT,01,01,02,FWVER=SPG 5.10*40\r\n'
+b'$GNTXT,01,01,02,PROTVER=34.10*1E\r\n'
+b'$GNTXT,01,01,02,CHIPID=000000A0BA9C8E3754*01\r\n'
+b'$GNTXT,01,01,02,GPS;GLO;GAL;BDS*77\r\n'
+b'$GNTXT,01,01,02,SBAS;QZSS*60\r\n'
+b'$GNTXT,01,01,02,ANTSUPERV=*22\r\n'
+b'$GNTXT,01,01,02,ANTSTATUS=DONTKNOW*2D\r\n'
+b'$GNTXT,01,01,02,PF=F7FFF*4F\r\n'
+b'$GNTXT,01,01,02,Starting GNSS*5A\r\n'
+```
+
+This matches the text shown in section 2.3.1 "Boot screen" of the u-blox [M10 ROM 5.10 Release Notes](https://content.u-blox.com/sites/default/files/u-blox-M10-ROM-5.10_ReleaseNotes_UBX-22001426.pdf), except the line:
+
+```
+$GNTXT,01,01,02,ROM SPG 5.10 (7b202e)*7C
+```
+
+In the release notes, in place of the above line, two lines are shown:
+
+```
+$GNTXT,01,01,02,EXT SPG 5.10 (7b202e)*65
+$GNTXT,01,01,02,ROM BASE 0xF8BE6B24*55
+```
+
 Udev rules
 ---------
 
